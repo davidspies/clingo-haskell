@@ -95,8 +95,6 @@ import Clingo.Raw.Enums
 
 #include <clingo.h>
 
-type CBool = #type bool
-
 type Literal = #type clingo_literal_t
 type Atom = #type clingo_atom_t
 type Identifier = #type clingo_id_t
