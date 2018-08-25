@@ -40,7 +40,7 @@ pattern BraveConsequences = ModelType Raw.BraveConsequences
 pattern CautiousConsequences = ModelType Raw.CautiousConsequences
 
 -- | Type for building symbol selections.
-data SymbolSelection = SymbolSelection 
+data SymbolSelection = SymbolSelection
     { selectCSP     :: Bool
     , selectShown   :: Bool
     , selectAtoms   :: Bool
@@ -80,7 +80,7 @@ class MonadSymbol m => MonadModel m where
     -- | Get the associated 'SolveControl' of a Model.
     context :: Model s -> m s (SolveControl s)
     -- | Add a clause from the model callback.
-    modelAddClause :: Foldable t 
+    modelAddClause :: Foldable t
                    => SolveControl s -> t (SymbolicLiteral s) -> m s ()
 
 instance MonadModel IOSym where
@@ -137,6 +137,6 @@ context' (Model m) = SolveControl <$> marshall1 (Raw.modelContext m)
 
 modelAddClause' :: (MonadIO m, MonadThrow m, Foldable t)
                 => SolveControl s -> t (SymbolicLiteral s) -> m ()
-modelAddClause' (SolveControl s) lits = marshall0 $ 
+modelAddClause' (SolveControl s) lits = marshall0 $
     withArrayLen (map rawSymLit . toList $ lits) $ \len arr ->
         Raw.solveControlAddClause s arr (fromIntegral len)

@@ -37,12 +37,12 @@ foreign import ccall "clingo.h clingo_model_cost_size" modelCostSizeFFI ::
     Model -> Ptr CSize -> IO CBool
 foreign import ccall "clingo.h clingo_model_cost" modelCostFFI ::
     Model -> Ptr Int64 -> CSize -> IO CBool
-foreign import ccall "clingo.h clingo_model_optimality_proven" 
+foreign import ccall "clingo.h clingo_model_optimality_proven"
     modelOptimalityProvenFFI ::
     Model -> Ptr CBool -> IO CBool
 foreign import ccall "clingo.h clingo_model_context" modelContextFFI ::
     Model -> Ptr SolveControl -> IO CBool
-foreign import ccall "clingo.h clingo_solve_control_add_clause" 
+foreign import ccall "clingo.h clingo_solve_control_add_clause"
     solveControlAddClauseFFI ::
     SolveControl -> Ptr SymbolicLiteral -> CSize -> IO CBool
 
@@ -55,7 +55,7 @@ modelNumber a b = liftIO $ modelNumberFFI a b
 modelSymbolsSize :: MonadIO m => Model -> ShowFlag -> Ptr CSize -> m CBool
 modelSymbolsSize a b c = liftIO $ modelSymbolsSizeFFI a b c
 
-modelSymbols :: MonadIO m => Model -> ShowFlag -> Ptr Symbol -> CSize 
+modelSymbols :: MonadIO m => Model -> ShowFlag -> Ptr Symbol -> CSize
                           -> m CBool
 modelSymbols a b c d = liftIO $ modelSymbolsFFI a b c d
 
@@ -74,6 +74,6 @@ modelOptimalityProven a b = liftIO $ modelOptimalityProvenFFI a b
 modelContext :: MonadIO m => Model -> Ptr SolveControl -> m CBool
 modelContext a b = liftIO $ modelContextFFI a b
 
-solveControlAddClause :: MonadIO m => SolveControl -> Ptr SymbolicLiteral 
+solveControlAddClause :: MonadIO m => SolveControl -> Ptr SymbolicLiteral
                                    -> CSize -> m CBool
 solveControlAddClause a b c = liftIO $ solveControlAddClauseFFI a b c

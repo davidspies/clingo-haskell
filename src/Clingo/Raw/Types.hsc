@@ -120,7 +120,7 @@ instance Storable Location where
     sizeOf _ = #{size clingo_location_t}
     alignment = sizeOf
 
-    peek p = Location 
+    peek p = Location
         <$> (#{peek clingo_location_t, begin_file} p)
         <*> (#{peek clingo_location_t, end_file} p)
         <*> (#{peek clingo_location_t, begin_line} p)
@@ -164,28 +164,28 @@ type SymbolicAtomIterator = #type clingo_symbolic_atom_iterator_t
 newtype TheoryAtoms = TheoryAtoms (Ptr TheoryAtoms) deriving Storable
 newtype PropagateInit = PropagateInit (Ptr PropagateInit) deriving Storable
 newtype Assignment = Assignment (Ptr Assignment) deriving Storable
-newtype PropagateControl = PropagateControl (Ptr PropagateControl) 
+newtype PropagateControl = PropagateControl (Ptr PropagateControl)
     deriving Storable
 
-type CallbackPropagatorInit a = 
+type CallbackPropagatorInit a =
     PropagateInit -> Ptr a -> IO (CBool)
 
 foreign import ccall "wrapper" mkCallbackPropagatorInit ::
     CallbackPropagatorInit a -> IO (FunPtr (CallbackPropagatorInit a))
 
-type CallbackPropagatorPropagate a = 
+type CallbackPropagatorPropagate a =
     PropagateControl -> Ptr Literal -> CSize -> Ptr a -> IO CBool
 
 foreign import ccall "wrapper" mkCallbackPropagatorPropagate ::
     CallbackPropagatorPropagate a -> IO (FunPtr (CallbackPropagatorPropagate a))
 
-type CallbackPropagatorUndo a = 
+type CallbackPropagatorUndo a =
     PropagateControl -> Ptr Literal -> CSize -> Ptr a -> IO CBool
 
 foreign import ccall "wrapper" mkCallbackPropagatorUndo ::
     CallbackPropagatorUndo a -> IO (FunPtr (CallbackPropagatorUndo a))
 
-type CallbackPropagatorCheck a = 
+type CallbackPropagatorCheck a =
     PropagateControl -> Ptr a -> IO CBool
 
 foreign import ccall "wrapper" mkCallbackPropagatorCheck ::
@@ -201,7 +201,7 @@ data Propagator a = Propagator
 instance Storable (Propagator a) where
     sizeOf _ = #{size clingo_propagator_t}
     alignment = sizeOf
-    peek p = Propagator 
+    peek p = Propagator
          <$> (#{peek clingo_propagator_t, init} p)
          <*> (#{peek clingo_propagator_t, propagate} p)
          <*> (#{peek clingo_propagator_t, undo} p)
@@ -238,40 +238,40 @@ data GroundProgramObserver a = GroundProgramObserver
     { gpoInitProgram   :: FunPtr (CBool -> Ptr a -> IO CBool)
     , gpoBeginStep     :: FunPtr (Ptr a -> IO CBool)
     , gpoEndStep       :: FunPtr (Ptr a -> IO CBool)
-    , gpoRule          :: FunPtr (CBool -> Ptr Atom -> CSize 
-                                               -> Ptr Literal -> CSize 
+    , gpoRule          :: FunPtr (CBool -> Ptr Atom -> CSize
+                                               -> Ptr Literal -> CSize
                                                -> Ptr a -> IO CBool)
-    , gpoWeightRule    :: FunPtr (CBool -> Ptr Atom -> CSize -> Weight 
-                                               -> Ptr WeightedLiteral -> CSize 
+    , gpoWeightRule    :: FunPtr (CBool -> Ptr Atom -> CSize -> Weight
+                                               -> Ptr WeightedLiteral -> CSize
                                                -> Ptr a -> IO CBool)
-    , gpoMinimize      :: FunPtr (Weight -> Ptr WeightedLiteral -> CSize 
+    , gpoMinimize      :: FunPtr (Weight -> Ptr WeightedLiteral -> CSize
                                          -> Ptr a -> IO CBool)
     , gpoProject       :: FunPtr (Ptr Atom -> CSize -> Ptr a -> IO CBool)
     , gpoExternal      :: FunPtr (Atom -> ExternalType -> Ptr a -> IO CBool)
     , gpoAssume        :: FunPtr (Ptr Literal -> CSize -> Ptr a -> IO CBool)
-    , gpoHeuristic     :: FunPtr (Atom -> HeuristicType -> CInt 
-                                       -> CUInt -> Ptr Literal -> CSize 
+    , gpoHeuristic     :: FunPtr (Atom -> HeuristicType -> CInt
+                                       -> CUInt -> Ptr Literal -> CSize
                                        -> Ptr a -> IO CBool)
-    , gpoAcycEdge      :: FunPtr (CInt -> CInt -> Ptr Literal -> CSize 
+    , gpoAcycEdge      :: FunPtr (CInt -> CInt -> Ptr Literal -> CSize
                                        -> Ptr a -> IO CBool)
     , gpoTheoryTermNum :: FunPtr (Identifier -> CInt -> Ptr a -> IO CBool)
     , gpoTheoryTermStr :: FunPtr (Identifier -> Ptr CChar -> Ptr a -> IO CBool)
-    , gpoTheoryTermCmp :: FunPtr (Identifier -> CInt -> Ptr Identifier -> CSize 
+    , gpoTheoryTermCmp :: FunPtr (Identifier -> CInt -> Ptr Identifier -> CSize
                                              -> Ptr a -> IO CBool)
-    , gpoTheoryElement :: FunPtr (Identifier -> Ptr Identifier -> CSize 
-                                             -> Ptr Literal -> CSize -> Ptr a 
+    , gpoTheoryElement :: FunPtr (Identifier -> Ptr Identifier -> CSize
+                                             -> Ptr Literal -> CSize -> Ptr a
                                              -> IO CBool)
-    , gpoTheoryAtom    :: FunPtr (Identifier -> Identifier -> Ptr Identifier 
+    , gpoTheoryAtom    :: FunPtr (Identifier -> Identifier -> Ptr Identifier
                                              -> CSize -> IO CBool)
-    , gpoTheoryAtomGrd :: FunPtr (Identifier -> Identifier -> Ptr Identifier 
-                                             -> CSize -> Identifier 
-                                             -> Identifier -> Ptr a 
+    , gpoTheoryAtomGrd :: FunPtr (Identifier -> Identifier -> Ptr Identifier
+                                             -> CSize -> Identifier
+                                             -> Identifier -> Ptr a
                                              -> IO CBool)
     }
 
-foreign import ccall "wrapper" mkGpoInitProgram :: 
+foreign import ccall "wrapper" mkGpoInitProgram ::
     (CBool -> Ptr a -> IO CBool) -> IO (FunPtr (CBool -> Ptr a -> IO CBool))
-foreign import ccall "wrapper" mkGpoBeginStep :: 
+foreign import ccall "wrapper" mkGpoBeginStep ::
     (Ptr a -> IO CBool) -> IO (FunPtr (Ptr a -> IO CBool))
 foreign import ccall "wrapper" mkGpoEndStep ::
     (Ptr a -> IO CBool) -> IO (FunPtr (Ptr a -> IO CBool))
@@ -327,12 +327,12 @@ instance Storable (GroundProgramObserver a) where
         <*> (#{peek clingo_ground_program_observer_t, theory_atom_with_guard} p)
 
     poke p g = do
-        (#poke clingo_ground_program_observer_t, init_program) p 
+        (#poke clingo_ground_program_observer_t, init_program) p
             (gpoInitProgram g)
         (#poke clingo_ground_program_observer_t, begin_step) p (gpoBeginStep g)
         (#poke clingo_ground_program_observer_t, end_step) p (gpoEndStep g)
         (#poke clingo_ground_program_observer_t, rule) p (gpoRule g)
-        (#poke clingo_ground_program_observer_t, weight_rule) p 
+        (#poke clingo_ground_program_observer_t, weight_rule) p
             (gpoWeightRule g)
         (#poke clingo_ground_program_observer_t, minimize) p (gpoMinimize g)
         (#poke clingo_ground_program_observer_t, project) p (gpoProject g)
@@ -340,17 +340,17 @@ instance Storable (GroundProgramObserver a) where
         (#poke clingo_ground_program_observer_t, assume) p (gpoAssume g)
         (#poke clingo_ground_program_observer_t, heuristic) p (gpoHeuristic g)
         (#poke clingo_ground_program_observer_t, acyc_edge) p (gpoAcycEdge g)
-        (#poke clingo_ground_program_observer_t, theory_term_number) p 
+        (#poke clingo_ground_program_observer_t, theory_term_number) p
             (gpoTheoryTermNum g)
-        (#poke clingo_ground_program_observer_t, theory_term_string) p 
+        (#poke clingo_ground_program_observer_t, theory_term_string) p
             (gpoTheoryTermStr g)
-        (#poke clingo_ground_program_observer_t, theory_term_compound) p 
+        (#poke clingo_ground_program_observer_t, theory_term_compound) p
             (gpoTheoryTermCmp g)
-        (#poke clingo_ground_program_observer_t, theory_element) p 
+        (#poke clingo_ground_program_observer_t, theory_element) p
             (gpoTheoryElement g)
-        (#poke clingo_ground_program_observer_t, theory_atom) p 
+        (#poke clingo_ground_program_observer_t, theory_atom) p
             (gpoTheoryAtom g)
-        (#poke clingo_ground_program_observer_t, theory_atom_with_guard) p 
+        (#poke clingo_ground_program_observer_t, theory_atom_with_guard) p
             (gpoTheoryAtomGrd g)
 
 newtype Control = Control (Ptr Control) deriving Storable
@@ -375,8 +375,8 @@ instance Storable Part where
          (#poke clingo_part_t, size) p (partSize part)
 
 type CallbackSymbol a = Ptr Symbol -> CSize -> Ptr a -> IO CBool
-type CallbackGround a = 
-    Ptr Location -> Ptr CChar -> Ptr Symbol -> CSize -> Ptr a 
+type CallbackGround a =
+    Ptr Location -> Ptr CChar -> Ptr Symbol -> CSize -> Ptr a
                  -> FunPtr (CallbackSymbol a) -> Ptr a -> IO CBool
 type CallbackEvent a = SolveEvent -> Ptr Model -> Ptr a -> Ptr CBool -> IO CBool
 type CallbackFinish a = SolveResult -> Ptr a -> IO CBool

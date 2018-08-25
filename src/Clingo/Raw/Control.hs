@@ -22,7 +22,7 @@ module Clingo.Raw.Control
     -- * Configuration
     controlConfiguration,
     controlUseEnumAssumption,
-    
+
     -- * Program Inspection
     controlGetConst,
     controlHasConst,
@@ -45,80 +45,80 @@ import Foreign.C.String
 import Clingo.Raw.Types
 import Clingo.Raw.Enums
 
-foreign import ccall "clingo.h clingo_control_new" 
+foreign import ccall "clingo.h clingo_control_new"
                      controlNewFFI ::
-    Ptr CString -> CSize -> FunPtr (Logger a) -> Ptr a -> CUInt 
+    Ptr CString -> CSize -> FunPtr (Logger a) -> Ptr a -> CUInt
                 -> Ptr Control -> IO CBool
-foreign import ccall "clingo.h clingo_control_free" 
+foreign import ccall "clingo.h clingo_control_free"
                      controlFreeFFI ::
     Control -> IO ()
-foreign import ccall "clingo.h clingo_control_load" 
+foreign import ccall "clingo.h clingo_control_load"
                      controlLoadFFI ::
     Control -> CString -> IO CBool
-foreign import ccall "clingo.h clingo_control_add" 
+foreign import ccall "clingo.h clingo_control_add"
                      controlAddFFI ::
     Control -> CString -> Ptr CString -> CSize -> CString -> IO CBool
-foreign import ccall "clingo.h clingo_control_ground" 
+foreign import ccall "clingo.h clingo_control_ground"
                      controlGroundFFI ::
-    Control -> Ptr Part -> CSize -> FunPtr (CallbackGround a) -> Ptr a 
+    Control -> Ptr Part -> CSize -> FunPtr (CallbackGround a) -> Ptr a
                 -> IO CBool
-foreign import ccall "clingo.h clingo_control_solve" 
+foreign import ccall "clingo.h clingo_control_solve"
                      controlSolveFFI ::
-    Control -> SolveMode 
+    Control -> SolveMode
             -> Ptr SymbolicLiteral -> CSize
             -> FunPtr (CallbackEvent a) -> Ptr a
             -> Ptr SolveHandle -> IO CBool
-foreign import ccall "clingo.h clingo_control_cleanup" 
+foreign import ccall "clingo.h clingo_control_cleanup"
                      controlCleanupFFI ::
     Control -> IO CBool
-foreign import ccall "clingo.h clingo_control_assign_external" 
+foreign import ccall "clingo.h clingo_control_assign_external"
                      controlAssignExternalFFI ::
     Control -> Symbol -> TruthValue -> IO CBool
-foreign import ccall "clingo.h clingo_control_release_external" 
+foreign import ccall "clingo.h clingo_control_release_external"
                      controlReleaseExternalFFI ::
     Control -> Symbol -> IO CBool
 foreign import ccall "clingo.h clingo_control_register_propagator"
                      controlRegisterPropagatorFFI ::
     Control -> Ptr (Propagator a) -> Ptr a -> CBool -> IO CBool
-foreign import ccall "clingo.h clingo_control_statistics" 
+foreign import ccall "clingo.h clingo_control_statistics"
                      controlStatisticsFFI ::
     Control -> Ptr Statistics -> IO CBool
-foreign import ccall "clingo.h clingo_control_interrupt" 
+foreign import ccall "clingo.h clingo_control_interrupt"
                      controlInterruptFFI ::
     Control -> IO ()
-foreign import ccall "clingo.h clingo_control_clasp_facade" 
+foreign import ccall "clingo.h clingo_control_clasp_facade"
                      controlClaspFacadeFFI ::
     Control -> Ptr (Ptr ()) -> IO CBool
-foreign import ccall "clingo.h clingo_control_configuration" 
+foreign import ccall "clingo.h clingo_control_configuration"
                      controlConfigurationFFI ::
     Control -> Ptr Configuration -> IO CBool
-foreign import ccall "clingo.h clingo_control_use_enumeration_assumption" 
+foreign import ccall "clingo.h clingo_control_use_enumeration_assumption"
                      controlUseEnumAssumptionFFI ::
     Control -> CBool -> IO CBool
-foreign import ccall "clingo.h clingo_control_get_const" 
+foreign import ccall "clingo.h clingo_control_get_const"
                      controlGetConstFFI ::
     Control -> CString -> Ptr Symbol -> IO CBool
-foreign import ccall "clingo.h clingo_control_has_const" 
+foreign import ccall "clingo.h clingo_control_has_const"
                      controlHasConstFFI ::
     Control -> CString -> Ptr CBool -> IO CBool
-foreign import ccall "clingo.h clingo_control_symbolic_atoms" 
+foreign import ccall "clingo.h clingo_control_symbolic_atoms"
                      controlSymbolicAtomsFFI ::
     Control -> Ptr SymbolicAtoms -> IO CBool
-foreign import ccall "clingo.h clingo_control_theory_atoms" 
+foreign import ccall "clingo.h clingo_control_theory_atoms"
                      controlTheoryAtomsFFI ::
     Control -> Ptr TheoryAtoms -> IO CBool
 foreign import ccall "clingo.h clingo_control_register_observer"
                      controlRegisterObserverFFI ::
     Control -> Ptr (GroundProgramObserver a) -> Ptr a -> IO CBool
-foreign import ccall "clingo.h clingo_control_backend" 
+foreign import ccall "clingo.h clingo_control_backend"
                      controlBackendFFI ::
     Control -> Ptr Backend -> IO CBool
-foreign import ccall "clingo.h clingo_control_program_builder" 
+foreign import ccall "clingo.h clingo_control_program_builder"
                      controlProgramBuilderFFI ::
     Control -> Ptr ProgramBuilder -> IO CBool
 
 
-controlNew :: MonadIO m => Ptr CString -> CSize -> FunPtr (Logger a) 
+controlNew :: MonadIO m => Ptr CString -> CSize -> FunPtr (Logger a)
                         -> Ptr a -> CUInt -> Ptr Control -> m CBool
 controlNew a b c d e f = liftIO $ controlNewFFI a b c d e f
 
@@ -128,16 +128,16 @@ controlFree a = liftIO $ controlFreeFFI a
 controlLoad :: MonadIO m => Control -> CString -> m CBool
 controlLoad a b = liftIO $ controlLoadFFI a b
 
-controlAdd :: MonadIO m => Control -> CString -> Ptr CString -> CSize 
+controlAdd :: MonadIO m => Control -> CString -> Ptr CString -> CSize
                         -> CString -> m CBool
 controlAdd a b c d e = liftIO $ controlAddFFI a b c d e
 
-controlGround :: MonadIO m => Control -> Ptr Part -> CSize 
+controlGround :: MonadIO m => Control -> Ptr Part -> CSize
                            -> FunPtr (CallbackGround a) -> Ptr a -> m CBool
 controlGround a b c d e = liftIO $ controlGroundFFI a b c d e
 
-controlSolve :: MonadIO m 
-             => Control -> SolveMode 
+controlSolve :: MonadIO m
+             => Control -> SolveMode
              -> Ptr SymbolicLiteral -> CSize
              -> FunPtr (CallbackEvent a) -> Ptr a
              -> Ptr SolveHandle -> m CBool
@@ -146,16 +146,16 @@ controlSolve a b c d e f g = liftIO $ controlSolveFFI a b c d e f g
 controlCleanup :: MonadIO m => Control -> m CBool
 controlCleanup a = liftIO $ controlCleanupFFI a
 
-controlAssignExternal :: MonadIO m => Control -> Symbol -> TruthValue 
+controlAssignExternal :: MonadIO m => Control -> Symbol -> TruthValue
                                    -> m CBool
 controlAssignExternal a b c = liftIO $ controlAssignExternalFFI a b c
 
 controlReleaseExternal :: MonadIO m => Control -> Symbol -> m CBool
 controlReleaseExternal a b = liftIO $ controlReleaseExternalFFI a b
 
-controlRegisterPropagator :: MonadIO m => Control -> Ptr (Propagator a) 
+controlRegisterPropagator :: MonadIO m => Control -> Ptr (Propagator a)
                                        -> Ptr a -> CBool -> m CBool
-controlRegisterPropagator a b c d = 
+controlRegisterPropagator a b c d =
     liftIO $ controlRegisterPropagatorFFI a b c d
 
 controlStatistics :: MonadIO m => Control -> Ptr Statistics -> m CBool
@@ -188,8 +188,8 @@ controlTheoryAtoms :: MonadIO m => Control -> Ptr TheoryAtoms
                                 -> m CBool
 controlTheoryAtoms a b = liftIO $ controlTheoryAtomsFFI a b
 
-controlRegisterObserver :: MonadIO m => Control 
-                                     -> Ptr (GroundProgramObserver a) -> Ptr a 
+controlRegisterObserver :: MonadIO m => Control
+                                     -> Ptr (GroundProgramObserver a) -> Ptr a
                                      -> m CBool
 controlRegisterObserver a b c = liftIO $ controlRegisterObserverFFI a b c
 

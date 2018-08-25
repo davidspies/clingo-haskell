@@ -83,7 +83,7 @@ newtype IOSym s a = IOSym { iosym :: IO a }
 
 -- | The 'Clingo' monad provides a base monad for computations utilizing the
 -- clingo answer set solver. It uses an additional type parameter to ensure that
--- values that are managed by the solver can not leave scope. 
+-- values that are managed by the solver can not leave scope.
 newtype Clingo s a = Clingo { clingo :: ReaderT Raw.Control (IOSym s) a }
     deriving (Functor, Applicative, Monad, MonadMask, MonadThrow
              , MonadCatch, MonadIO, MonadFix, MonadPlus, Alternative)
@@ -98,8 +98,8 @@ runClingo ctrl a = iosym (runReaderT (clingo a) ctrl)
 askC :: Clingo s Raw.Control
 askC = Clingo ask
 
-data Symbol s = Symbol 
-    { rawSymbol :: Raw.Symbol 
+data Symbol s = Symbol
+    { rawSymbol :: Raw.Symbol
     , symType   :: Raw.SymbolType
     , symHash   :: Integer
     , symNum    :: Maybe Integer
@@ -131,7 +131,7 @@ class Signed a where
 instance Signed Bool where
     positive x = x
 
-data SymbolicLiteral s 
+data SymbolicLiteral s
     = SLPositive (Symbol s)
     | SLNegative (Symbol s)
     deriving (Generic, Eq, Ord)
@@ -154,10 +154,10 @@ rawSymLit sl = Raw.SymbolicLiteral
     { Raw.slitSymbol   = rawSymbol (symLitSymbol sl)
     , Raw.slitPositive = fromBool (symLitPositive sl) }
 
-data Signature s = Signature 
+data Signature s = Signature
     { rawSignature :: Raw.Signature
     , sigArity     :: Natural
-    , sigName      :: Text 
+    , sigName      :: Text
     , sigHash      :: Integer
     }
 
@@ -190,11 +190,11 @@ instance Hashable (WeightedLiteral s)
 instance NFData (WeightedLiteral s)
 
 rawWeightedLiteral :: WeightedLiteral s -> Raw.WeightedLiteral
-rawWeightedLiteral (WeightedLiteral l w) = 
+rawWeightedLiteral (WeightedLiteral l w) =
     Raw.WeightedLiteral (rawLiteral l) (fromIntegral w)
 
 fromRawWeightedLiteral :: Raw.WeightedLiteral -> WeightedLiteral s
-fromRawWeightedLiteral (Raw.WeightedLiteral l w) = 
+fromRawWeightedLiteral (Raw.WeightedLiteral l w) =
     WeightedLiteral (Literal l) (fromIntegral w)
 
 data ExternalType = ExtFree | ExtTrue | ExtFalse | ExtRelease
@@ -215,7 +215,7 @@ fromRawExtT Raw.ExternalFalse = ExtFalse
 fromRawExtT Raw.ExternalRelease = ExtRelease
 fromRawExtT _ = error "unknown external_type"
 
-data HeuristicType = HeuristicLevel | HeuristicSign | HeuristicFactor 
+data HeuristicType = HeuristicLevel | HeuristicSign | HeuristicFactor
                    | HeuristicInit  | HeuristicTrue | HeuristicFalse
     deriving (Show, Eq, Ord, Enum, Read, Generic)
 
@@ -267,7 +267,7 @@ data Location = Location
     deriving (Eq, Show, Ord)
 
 rawLocation :: Location -> IO Raw.Location
-rawLocation l = Raw.Location 
+rawLocation l = Raw.Location
     <$> newCString (locBeginFile l)
     <*> newCString (locEndFile l)
     <*> pure (fromIntegral (locBeginLine l))
@@ -386,9 +386,9 @@ wrapCBProp :: MonadIO m
            -> m (FunPtr (Raw.CallbackPropagatorPropagate ()))
 wrapCBProp Nothing  = pure nullFunPtr
 wrapCBProp (Just f) = liftIO $ Raw.mkCallbackPropagatorPropagate go
-    where go :: Raw.PropagateControl -> Ptr Raw.Literal -> CSize -> Ptr () 
+    where go :: Raw.PropagateControl -> Ptr Raw.Literal -> CSize -> Ptr ()
              -> IO Raw.CBool
-          go c lits len _ = 
+          go c lits len _ =
               reraiseIO $ do
                   ls <- map Literal <$> peekArray (fromIntegral len) lits
                   f (PropagateCtrl c) ls

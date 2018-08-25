@@ -11,7 +11,7 @@ module Clingo.Control
     defaultClingo,
     withDefaultClingo,
     withClingo,
-    
+
     Part (..),
 
     loadProgram,
@@ -92,7 +92,7 @@ withClingo settings action = do
     argv <- liftIO $ mapM newCString (clingoArgs settings)
     ctrl <- marshall1 $ \x ->
         withArray argv $ \argvArr -> do
-            logCB <- maybe (pure nullFunPtr) wrapCBLogger 
+            logCB <- maybe (pure nullFunPtr) wrapCBLogger
                          (clingoLogger settings)
             let argv' = case clingoArgs settings of
                             [] -> nullPtr
@@ -120,7 +120,7 @@ addProgram :: Foldable t
            -> t Text                    -- ^ Part Arguments
            -> Text                      -- ^ Program Code
            -> Clingo s ()
-addProgram name params code = askC >>= \ctrl -> marshall0 $ 
+addProgram name params code = askC >>= \ctrl -> marshall0 $
     withCString (unpack name) $ \n ->
         withCString (unpack code) $ \c -> do
             ptrs <- mapM (newCString . unpack) (toList params)
@@ -147,7 +147,7 @@ freeRawPart p = do
 -- | Ground logic program parts. A callback can be provided to inject symbols
 -- when needed.
 ground :: [Part s]      -- ^ Parts to be grounded
-       -> Maybe 
+       -> Maybe
           (Location -> Text -> [Symbol s] -> ([Symbol s] -> IO ()) -> IO ())
                         -- ^ Callback for injecting symbols
        -> Clingo s ()
@@ -160,7 +160,7 @@ ground parts extFun = askC >>= \ctrl -> marshall0 $ do
     return res
 
 wrapCBGround :: MonadIO m
-             => (Location -> Text -> [Symbol s] 
+             => (Location -> Text -> [Symbol s]
                           -> ([Symbol s] -> IO ()) -> IO ())
              -> m (FunPtr (Raw.CallbackGround ()))
 wrapCBGround f = liftIO $ Raw.mkCallbackGround go
@@ -173,7 +173,7 @@ wrapCBGround f = liftIO $ Raw.mkCallbackGround go
 
 unwrapCBSymbol :: Raw.CallbackSymbol () -> ([Symbol s] -> IO ())
 unwrapCBSymbol f syms =
-    withArrayLen (map rawSymbol syms) $ \len arr -> 
+    withArrayLen (map rawSymbol syms) $ \len arr ->
         marshall0 (f arr (fromIntegral len) nullPtr)
 
 -- | Interrupt the current solve call.
@@ -219,27 +219,27 @@ solve mode assumptions onEvent = do
     where go ctrl x =
               withArrayLen (map rawSymLit assumptions) $ \len arr -> do
                   eventCB <- maybe (pure nullFunPtr) wrapCBEvent onEvent
-                  Raw.controlSolve 
-                    ctrl (rawSolveMode mode) 
-                    arr (fromIntegral len) eventCB nullPtr 
+                  Raw.controlSolve
+                    ctrl (rawSolveMode mode)
+                    arr (fromIntegral len) eventCB nullPtr
                     x
 
-withSolver :: [SymbolicLiteral s] 
-    -> (forall s1. Solver s1 -> IOSym s1 r) 
+withSolver :: [SymbolicLiteral s]
+    -> (forall s1. Solver s1 -> IOSym s1 r)
     -> Clingo s r
 withSolver assumptions f = do
     x <- solve SolveModeYield assumptions Nothing
-    Clingo (lift (f x)) 
+    Clingo (lift (f x))
         `finally` solverClose x
 
 wrapCBEvent :: MonadIO m
-            => (Maybe (Model s) -> IOSym s Continue) 
+            => (Maybe (Model s) -> IOSym s Continue)
             -> m (FunPtr (Raw.CallbackEvent ()))
 wrapCBEvent f = liftIO $ Raw.mkCallbackEvent go
-    where go :: Raw.SolveEvent 
-             -> Ptr Raw.Model 
-             -> Ptr a 
-             -> Ptr Raw.CBool 
+    where go :: Raw.SolveEvent
+             -> Ptr Raw.Model
+             -> Ptr a
+             -> Ptr Raw.CBool
              -> IO Raw.CBool
           go ev m _ r = reraiseIO $ do
               m' <- case ev of
@@ -254,7 +254,7 @@ statistics = fmap Statistics . marshall1 . Raw.controlStatistics =<< askC
 
 -- | Obtain program builder handle. See 'Clingo.ProgramBuilding'.
 programBuilder :: Clingo s (ProgramBuilder s)
-programBuilder = fmap ProgramBuilder . marshall1 
+programBuilder = fmap ProgramBuilder . marshall1
                . Raw.controlProgramBuilder =<< askC
 
 -- | Obtain backend handle. See 'Clingo.ProgramBuilding'.
@@ -263,12 +263,12 @@ backend = fmap Backend . marshall1 . Raw.controlBackend =<< askC
 
 -- | Obtain configuration handle. See 'Clingo.Configuration'.
 configuration :: Clingo s (Configuration s)
-configuration = fmap Configuration . marshall1 
+configuration = fmap Configuration . marshall1
               . Raw.controlConfiguration =<< askC
 
 -- | Obtain symbolic atoms handle. See 'Clingo.Inspection.SymbolicAtoms'.
 symbolicAtoms :: Clingo s (SymbolicAtoms s)
-symbolicAtoms = fmap SymbolicAtoms . marshall1 
+symbolicAtoms = fmap SymbolicAtoms . marshall1
               . Raw.controlSymbolicAtoms =<< askC
 
 -- | Obtain theory atoms handle. See 'Clingo.Inspection.TheoryAtoms'.
@@ -276,36 +276,36 @@ theoryAtoms :: Clingo s (TheoryAtoms s)
 theoryAtoms = fmap TheoryAtoms . marshall1 . Raw.controlTheoryAtoms =<< askC
 
 -- | Configure how learnt constraints are handled during enumeration.
--- 
+--
 -- If the enumeration assumption is enabled, then all information learnt from
 -- the solver's various enumeration modes is removed after a solve call. This
 -- includes enumeration of cautious or brave consequences, enumeration of
 -- answer sets with or without projection, or finding optimal models, as well
 -- as clauses added with clingo_solve_control_add_clause().
 useEnumAssumption :: Bool -> Clingo s ()
-useEnumAssumption b = askC >>= \ctrl -> 
+useEnumAssumption b = askC >>= \ctrl ->
     marshall0 $ Raw.controlUseEnumAssumption ctrl (fromBool b)
 
 -- | Assign a truth value to an external atom.
--- 
+--
 -- If the atom does not exist or is not external, this is a noop.
 assignExternal :: Symbol s -> TruthValue -> Clingo s ()
-assignExternal s t = askC >>= \ctrl -> 
+assignExternal s t = askC >>= \ctrl ->
     marshall0 $ Raw.controlAssignExternal ctrl (rawSymbol s) (rawTruthValue t)
 
 -- | Release an external atom.
--- 
+--
 -- After this call, an external atom is no longer external and subject to
 -- program simplifications.  If the atom does not exist or is not external,
 -- this is a noop.
 releaseExternal :: Symbol s -> Clingo s ()
-releaseExternal s = askC >>= \ctrl -> 
+releaseExternal s = askC >>= \ctrl ->
     marshall0 $ Raw.controlReleaseExternal ctrl (rawSymbol s)
 
 -- | Get the symbol for a constant definition @#const name = symbol@.
 getConst :: Text -> Clingo s (Symbol s)
 getConst name = askC >>= \ctrl -> pureSymbol =<< marshall1 (go ctrl)
-    where go ctrl x = withCString (unpack name) $ \cstr -> 
+    where go ctrl x = withCString (unpack name) $ \cstr ->
                           Raw.controlGetConst ctrl cstr x
 
 -- | Check if there is a constant definition for the given constant.
@@ -319,7 +319,7 @@ hasConst name = askC >>= \ctrl -> toBool <$> marshall1 (go ctrl)
 --
 -- If the sequential flag is set to true, the propagator is called
 -- sequentially when solving with multiple threads.
--- 
+--
 -- See the 'Clingo.Propagation' module for more information.
 registerPropagator :: Bool -> Propagator s -> Clingo s ()
 registerPropagator sequ prop = do
@@ -341,6 +341,6 @@ registerUnsafePropagator sequ prop = do
 
 -- | Get clingo version.
 version :: MonadIO m => m (Int, Int, Int)
-version = do 
+version = do
     (a,b,c) <- marshall3V Raw.version
     return (fromIntegral a, fromIntegral b, fromIntegral c)
